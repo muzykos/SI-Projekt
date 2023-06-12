@@ -86,7 +86,7 @@ def train_model(dataset):
     #RoughSetDT.__reduce__
     # Split the dataset into training and testing sets
 
-    training_data, testing_data = train_test_split(white_wine_data, test_size=0.2)
+    training_data, testing_data = train_test_split(dataset, test_size=0.2)
 
     # Convert the dataset to TransactionDB format
     Train_txns = TransactionDB.from_DataFrame(training_data)
@@ -122,7 +122,9 @@ def main():
     white_wine_data = cleanupdataset(white_wine_data)
 
     features = feature_selection(white_wine_data)
-    reduce_dataset(white_wine_data,features)
+    dataset = reduce_dataset(white_wine_data,features)
+
+    train_model(dataset)
 
 
 
