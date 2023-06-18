@@ -1,138 +1,64 @@
-import pandas as pd
-
-from itertools import combinations
-from pyarc import TransactionDB
-from pyarc import CBA
-from pyarc.data_structures import Item
-from pyarc.algorithms import (
-    top_rules,
-    createCARs,
-    M1Algorithm,
-    M2Algorithm
-)
-
-from matplotlib import pyplot as plt
-from sklearn import tree
+import nltk
+import numpy as np
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
-#from roughsets_base.roughset_dt import RoughSetDT
-from roughsets_base.roughset_dt import RoughSetDT
-from sklearn.feature_selection import RFECV
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import StratifiedKFold
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import preprocessing
-pd.__version__
+from sklearn.metrics import accuracy_score
+from fuzzy_rough_learn import FuzzyRoughClassifier
+from fuzzy_rough_learn.reducts import get_reducts
 
+# Step 1: Data Preprocessing
+nltk.download("stopwords")
+nltk.download("punkt")
+nltk.download("wordnet")
 
+stop_words = set(stopwords.words("english"))
+lemmatizer = WordNetLemmatizer()
 
-clf = DecisionTreeClassifier(random_state=0,min_samples_split=10)
-le = preprocessing.LabelEncoder()
+# Example text data
+text_data = [
+    ("I love this movie", "positive"),
+    ("This book is boring", "negative"),
+    ("Great experience at the restaurant", "positive"),
+    ("The service was terrible", "negative")
+]
 
-def loaddataset(url):
-    return pd.read_csv(url, delimiter=';')
+preprocessed_data = []
+for text, label in text_data:
+    text = text.lower()
+    tokens = word_tokenize(text)
+    preprocessed_text = [
+        lemmatizer.lemmatize(word) for word in tokens if word not in stop_words
+    ]
+    preprocessed_data.append((" ".join(preprocessed_text), label))
 
-def cleanupdataset(dataset):
-    df = pd.DataFrame(dataset)
-    df.fillna(df.median(numeric_only=True).round(1), inplace=True)
-    return df
+# Step 2: Feature Extraction
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform([data[0] for data in preprocessed_data])
+y = np.array([data[1] for data in preprocessed_data])
 
-def feature_selection(dataset):
-    # Separate the features (X) and the target labels (y) for each dataset
-    X = dataset.drop('quality', axis=1)
-    y = dataset['quality']
+# Step 3: Rough Set Theory with fuzzy-rough-learn
+X = X.toarray()  # Convert the sparse matrix X to a dense array
 
-    # Create a classifier for feature selection
-    classifier = RandomForestClassifier(n_estimators=100)
+reducts = get_reducts(X, y)
 
-    # Create a cross-validation strategy
-    cv = StratifiedKFold(n_splits=5)
+classifier = FuzzyRoughClassifier()
+classifier.set_reducts(reducts)
+classifier.fit(X, y)
 
-    # Create the RFE selector with cross-validation
-    rfe = RFECV(estimator=classifier, cv=cv)
+# Step 4: Classification
+# Make predictions and evaluate the performance
+preprocessed_test_data = [
+    ("I really enjoyed the movie", "positive"),
+    ("The book was not interesting", "negative")
+]
 
-    # Perform feature selection
-    rfe.fit(X, y)
+X_test = vectorizer.transform([data[0] for data in preprocessed_test_data]).toarray()
+y_test = np.array([data[1] for data in preprocessed_test_data])
 
-    # Get the selected features
-    selected_features = rfe.support_
-    
-    #selected_columns = X.columns[selected_features]
-    #print("Selected columns:")
-    #print(selected_columns)
-    
-    return selected_features
-
-def reduce_dataset(dataset,selected_features):
-    # Separate the features and the target variable
-    X = dataset.drop('quality', axis=1)
-    y = dataset['quality']
-
-    # Remove non-selected features from the dataset
-    X_selected = X.loc[:, selected_features]
-
-    selected_data = pd.concat([X_selected, y], axis=1)
-
-    # Print the selected features
-    # print("reduced dataset:")
-    # print(selected_data)
-
-    return selected_data
-
-
-
-def train_model(dataset):
-    #RoughSetDT.__reduce__
-    # Split the dataset into training and testing sets
-
-    training_data, testing_data = train_test_split(dataset, test_size=0.2)
-
-    # Convert the dataset to TransactionDB format
-    Train_txns = TransactionDB.from_DataFrame(training_data)
-    Test_txns = TransactionDB.from_DataFrame(testing_data)
-
-    
-    # Train the Rough Sets model
-    rules = top_rules(Train_txns.string_representation)
-
-    # Print the generated rules
-    # for rule in rules:
-    #      print(rule)
-
-    cars = createCARs(rules)
-
-
-    classifier = M1Algorithm(cars, Train_txns).build()
-    # classifier = M2Algorithm(cars, txns_train).build()
-
-
-    accuracy = classifier.test_transactions(Test_txns)
-
-    print(accuracy)
-
-def main():
-    # # Load the red wine dataset
-    # red_wine_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
-    # red_wine_data = pd.read_csv(red_wine_url, delimiter=';')
-
-
-    # Load the white wine dataset
-    white_wine_data = loaddataset("https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv")
-    white_wine_data = cleanupdataset(white_wine_data)
-
-    features = feature_selection(white_wine_data)
-    dataset = reduce_dataset(white_wine_data,features)
-
-    train_model(dataset)
-
-
-
-
-
-
-if __name__ == "__main__":
-    main()
-
-
-
+predictions = classifier.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+print("Accuracy:", accuracy)

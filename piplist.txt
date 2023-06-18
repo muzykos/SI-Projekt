@@ -1,10 +1,4 @@
-roughsets-base  1.0.1.2
-scikit-learn    1.2.2
-scipy           1.10.1
-setuptools      65.5.0
-six             1.16.0
-sklearn         0.0.post5
-sklearn-pandas  2.2.0
-threadpoolctl   3.1.0
-tomli           2.0.1
-tzdata          2023.3
+ntlk   
+numpy
+sklearn
+fuzzy_rough_learn
