@@ -1,12 +1,10 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
-import pandas as pd
 import csv
 import nltk
 nltk.download('wordnet') 
 from nltk.stem import WordNetLemmatizer
-import re
 from wordProcesser import preprocess
 
 def parsePolarity(polarity):
@@ -22,6 +20,7 @@ test_part = 0.2
 
 sample_count = 1600000
 test_count = int(sample_count * test_part)
+step = 10000
 
 train_data = []
 train_labels = []
@@ -41,8 +40,10 @@ with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
                     continue
                 if not ic:
                     parsed = parsePolarity(int(column))
-                    if(parsed):
+                    if parsed:
                         data.append(parsed)
+                    else:
+                        continue
                 else:
                     data.append(preprocess(column))
                     data = data[::-1]
@@ -53,29 +54,49 @@ with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
                         train_data.append(data[0])
                         train_labels.append(data[1])
                     continue
-        if ir % 10000 == 0:
-            print((ir*100)/1600000,"% complete...")
-print("Reading complete.") 
+        if ir % step == 0:
+            percent = (ir*100)/1600000
+            print(f"{percent}% completed...")
 
-print("Total number of samples: ", sample_count, ".\nWanted number of tests: ", test_count, 
-      ".\nActual number of tests: ", len(test_data), ".\nNumber of train samples: ", len(train_data),".")
+print("Reading completed.") 
 
-# Vectorizing text data
+act_tests = len(test_data)
+act_trains = len(train_data)
+
+print(f"Total number of samples: {sample_count}.\nWanted number of tests: {test_count}.\nActual number of tests: {act_tests}.\nNumber of train samples: {act_trains}.")
+
+print("Vectorizing data...")
+# Vectorizing text data, sadly % completed is impossible without modifying library
 vectorizer = TfidfVectorizer()
 train_features = vectorizer.fit_transform(train_data)
 test_features = vectorizer.transform(test_data)
+print("Vectorizing completed.")
 
-# Training the classifier
+# Training the classifier, sadly % completed is impossible without modifying library
 classifier = MultinomialNB()
+
+print("Training classifier...")
+# step_train = step * (1-test_part)
 classifier.fit(train_features, train_labels)
+print("Training completed.")
 
 # Predicting test samples
-predictions = classifier.predict(test_features)
+predictions = []
 
-# Print the predictions (uncommenting would make it take moore time)
+print("Predicting test samples...")
+step_test = step * test_part
+for i in range(0, act_tests):
+    prediction = classifier.predict(test_features[i])
+    predictions.append(prediction)
+    if i % step_test == 0:
+        percent = (i*100)/act_tests
+        print(f"{percent}% completed...")
+print("Predicting completed.")
+
+# Print the predictions (uncommenting would make it take mooore time)
 # for text, prediction in zip(test_data, predictions):
 #     print(f"Text: {text} | Sentiment: {prediction}")
 
 # Evaluating the accuracy of the classifier
 accuracy = accuracy_score(test_labels, predictions)
-print(f"Accuracy: {accuracy}")
+print(f"Classifier accuracy: {accuracy}")
