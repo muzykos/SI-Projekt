@@ -1,3 +1,4 @@
 env/
 *.png
 __pycache__/samples.cpython-311.pyc
+twitter_emotions.csv
