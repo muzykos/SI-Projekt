@@ -1,5 +1,7 @@
 import pandas as pd
 
+import numpy as np
+
 from itertools import combinations
 from pyarc import TransactionDB
 from pyarc import CBA
@@ -108,8 +110,26 @@ def train_model(dataset):
 
 
     accuracy = classifier.test_transactions(Test_txns)
-
     print(accuracy)
+    return classifier
+
+def predict(classifier,dataset):
+    input_data = pd.DataFrame({
+    'fixed acidity': [7.2],
+    'volatile acidity': [0.36],
+    'citric acid': [0.46],
+    'residual sugar': [2.1],
+    'chlorides': [0.074],
+    'free sulfur dioxide': [12],
+    'total sulfur dioxide': [87],
+    'density': [0.997],
+    'pH': [3.35],
+    'sulphates': [0.48],
+    'alcohol': [10.2],
+    })
+    predictions = classifier.predict(input_data)
+
+    print(predictions)
 
 def main():
     # # Load the red wine dataset
@@ -122,10 +142,14 @@ def main():
     white_wine_data = cleanupdataset(white_wine_data)
 
     features = feature_selection(white_wine_data)
+    #print(features)
     dataset = reduce_dataset(white_wine_data,features)
-
-    train_model(dataset)
-
+    print(dataset)
+    #print(dataset.iloc[1])
+    classifier = train_model(dataset)
+    #print(classifier)
+    #predict(classifier,dataset)
+    
 
 
 
