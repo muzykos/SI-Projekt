@@ -12,7 +12,7 @@ from wordProcesser import preprocess
 def parsePolarity(polarity):
     if not polarity:
         return 'negative'
-    elif polarity == 2:
+    elif polarity == 4:
         return 'positive'
     return -1
 
@@ -73,8 +73,8 @@ classifier.fit(train_features, train_labels)
 predictions = classifier.predict(test_features)
 
 # Print the predictions (uncommenting would make it take moore time)
-for text, prediction in zip(test_data, predictions):
-    print(f"Text: {text} | Sentiment: {prediction}")
+# for text, prediction in zip(test_data, predictions):
+#     print(f"Text: {text} | Sentiment: {prediction}")
 
 # Evaluating the accuracy of the classifier
 accuracy = accuracy_score(test_labels, predictions)
