@@ -7,8 +7,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from fuzzy_rough_learn import FuzzyRoughClassifier
-from fuzzy_rough_learn.reducts import get_reducts
+# from frlearn import FuzzyRoughClassifier
+# from frlearn.reducts import get_reducts
 
 # Step 1: Data Preprocessing
 nltk.download("stopwords")
@@ -41,13 +41,13 @@ X = vectorizer.fit_transform([data[0] for data in preprocessed_data])
 y = np.array([data[1] for data in preprocessed_data])
 
 # Step 3: Rough Set Theory with fuzzy-rough-learn
-X = X.toarray()  # Convert the sparse matrix X to a dense array
+# X = X.toarray()  # Convert the sparse matrix X to a dense array
 
-reducts = get_reducts(X, y)
+# reducts = get_reducts(X, y)
 
-classifier = FuzzyRoughClassifier()
-classifier.set_reducts(reducts)
-classifier.fit(X, y)
+# classifier = FuzzyRoughClassifier()
+# classifier.set_reducts(reducts)
+# classifier.fit(X, y)
 
 # Step 4: Classification
 # Make predictions and evaluate the performance
@@ -59,6 +59,7 @@ preprocessed_test_data = [
 X_test = vectorizer.transform([data[0] for data in preprocessed_test_data]).toarray()
 y_test = np.array([data[1] for data in preprocessed_test_data])
 
-predictions = classifier.predict(X_test)
-accuracy = accuracy_score(y_test, predictions)
-print("Accuracy:", accuracy)
+# predictions = classifier.predict(X_test)
+# accuracy = accuracy_score(y_test, predictions)
+# print("Accuracy:", accuracy)
+print(X_test, y_test)
