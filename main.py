@@ -2,9 +2,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
 import csv
-import nltk
-nltk.download('wordnet') 
-from nltk.stem import WordNetLemmatizer
 from wordProcesser import preprocess
 
 def parsePolarity(polarity):
@@ -16,7 +13,7 @@ def parsePolarity(polarity):
 
 # Write here what % of samples should be in test_data   
 test_part = 0.2
-# example_limit = 1200
+
 
 sample_count = 1600000
 test_count = int(sample_count * test_part)
@@ -80,17 +77,18 @@ print("Training classifier...")
 classifier.fit(train_features, train_labels)
 print("Training completed.")
 
-# Predicting test samples
+# Predicting test samples, % completed is slowing it down a lot
 predictions = []
 
 print("Predicting test samples...")
-step_test = step * test_part
-for i in range(0, act_tests):
-    prediction = classifier.predict(test_features[i])
-    predictions.append(prediction)
-    if i % step_test == 0:
-        percent = (i*100)/act_tests
-        print(f"{percent}% completed...")
+# step_test = step * test_part
+# for i in range(0, act_tests):
+    # prediction = classifier.predict(test_features[i])
+    # predictions.append(prediction)
+    # if i % step_test == 0:
+        # percent = (i*100)/act_tests
+        # print(f"{percent}% completed...")
+predictions = classifier.predict(test_features)
 print("Predicting completed.")
 
 # Print the predictions (uncommenting would make it take mooore time)
