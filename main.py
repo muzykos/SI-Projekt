@@ -128,6 +128,7 @@ while ask_user ^ automatic_tests:
     elif automatic_tests:
         test = tests[t_counter]
         test_part = test[0]; seed = test[1]; nb_alpha = test[2]; nb_force_alpha = test[3]; nb_fit_prior = test[4]
+        test_part *= 0.01 # percent to float
         t_counter+=1
 
     if benchmark: t2 = time.time()
