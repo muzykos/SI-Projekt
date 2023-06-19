@@ -30,9 +30,9 @@ adv_settings = False
 automatic_tests = False # don't use together with ask_user
 # Test format: test_part, seed, alpha, force_alpha, fit_prior
 tests = [[5, 1, 0.25, True, True], [5, 1, 0.5, True, True], [5, 1, 1.0, True, True], [5, 1, 1.5, True, True], [5, 1, 2.0, True, True], [5, 1, 2.5, True, True],
-         [10, 1, 0.25, True, True], [10, 1, 0.5, True, True], [10, 1, 1.0, True, True], [10, 1, 1.5, True, True], [10, 1, 2.0, True, True], [10, 1, 2.5, True, True]
-         [15, 1, 0.25, True, True], [15, 1, 0.5, True, True], [15, 1, 1.0, True, True], [15, 1, 1.5, True, True], [15, 1, 2.0, True, True], [15, 1, 2.5, True, True]
-         [20, 1, 0.25, True, True], [20, 1, 0.5, True, True], [20, 1, 1.0, True, True], [20, 1, 1.5, True, True], [20, 1, 2.0, True, True], [20, 1, 2.5, True, True]
+         [10, 1, 0.25, True, True], [10, 1, 0.5, True, True], [10, 1, 1.0, True, True], [10, 1, 1.5, True, True], [10, 1, 2.0, True, True], [10, 1, 2.5, True, True],
+         [15, 1, 0.25, True, True], [15, 1, 0.5, True, True], [15, 1, 1.0, True, True], [15, 1, 1.5, True, True], [15, 1, 2.0, True, True], [15, 1, 2.5, True, True],
+         [20, 1, 0.25, True, True], [20, 1, 0.5, True, True], [20, 1, 1.0, True, True], [20, 1, 1.5, True, True], [20, 1, 2.0, True, True], [20, 1, 2.5, True, True],
          [25, 1, 0.25, True, True], [25, 1, 0.5, True, True], [25, 1, 1.0, True, True], [25, 1, 1.5, True, True], [25, 1, 2.0, True, True], [25, 1, 2.5, True, True]]
 t_amount = len(tests)
 t_counter = 0
