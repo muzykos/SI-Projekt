@@ -31,8 +31,11 @@ test_count = int(sample_count * test_part)
 step = 40000
 
 read_data = []
+read_label = []
 train_data = []
+train_label = []
 test_data = []
+test_label = []
 
 p = int(sample_count / test_count)
 
@@ -48,11 +51,9 @@ with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
                     parsed = parsePolarity(int(column))
                     if not parsed:
                         continue
-                    data.append(parsed)
+                    read_label.append(parsed)
                 else:
-                    data.append(column)
-                    data = data[::-1]
-                    read_data.append(data)
+                    read_data.append(column)
                     continue
         if ir % step == 0:
             percent = (ir*100)/1600000
@@ -66,9 +67,9 @@ preprocess(read_data)
 print("Preprocessing completed.")
 print(f"BENCHMARK - read+process {time.time()-t}")
 
-
 print("Splitting into train and test groups...")
-train_data, test_data = train_test_split(read_data, test_size=test_part)
+train_data, test_data, train_label, test_label = train_test_split(read_data, read_label,
+                                                                   test_size=test_part)
 act_tests = len(test_data)
 act_trains = len(train_data)
 print("Splitting completed.")
@@ -79,8 +80,8 @@ print(f"Total number of samples: {sample_count}.\nWanted number of tests: {test_
 print("Vectorizing data...")
 # Vectorizing text data, sadly % completed is impossible without modifying library
 vectorizer = TfidfVectorizer(lowercase=False) # already lowercased
-train_features = vectorizer.fit_transform(train_data[0])
-test_features = vectorizer.transform(test_data[0])
+train_features = vectorizer.fit_transform(train_data)
+test_features = vectorizer.transform(test_data)
 print("Vectorizing completed.")
 
 # Training the classifier, sadly % completed is impossible without modifying library
@@ -88,7 +89,7 @@ classifier = MultinomialNB(alpha=nb_alpha, force_alpha=nb_force_alpha, fit_prior
 
 print("Training classifier...")
 # step_train = step * (1-test_part)
-classifier.fit(train_features, train_data[1])
+classifier.fit(train_features, train_label)
 print("Training completed.")
 
 # Predicting test samples, % completed is slowing it down a lot
@@ -106,9 +107,10 @@ predictions = classifier.predict(test_features)
 print("Predicting completed.")
 
 # Print the predictions (uncommenting would make it take mooore time)
-for text, prediction in zip(test_data, predictions):
-    print(f"Text: {text} | Sentiment: {prediction}")
+# for text, prediction in zip(test_data, predictions):
+    # print(f"Text: {text} | Sentiment: {prediction}")
 
 # Evaluating the accuracy of the classifier
-accuracy = accuracy_score(test_data[1], predictions)
+accuracy = accuracy_score(test_label, predictions)
 print(f"Classifier accuracy: {accuracy}")
+print(f"BENCHMARK - everything: {time.time()-t}")

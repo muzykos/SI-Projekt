@@ -28,10 +28,11 @@ stopwordlist = ['a', 'about', 'above', 'after', 'again', 'ain', 'all', 'am', 'an
              'why', 'will', 'with', 'won', 'y', 'you', "youd","youll", "youre",
              "youve", 'your', 'yours', 'yourself', 'yourselves']
 
-def preprocess(tweets):
+def preprocess(data):
     # Initializing.
     wordLemm = WordNetLemmatizer()
     step = 16000
+    processed_data = []
 
     # Defining regex patterns.
     urlPattern        = r"((http://)[^ ]*|(https://)[^ ]*|( www\.)[^ ]*)"
@@ -40,31 +41,33 @@ def preprocess(tweets):
     sequencePattern   = r"(.)\1\1+"
     seqReplacePattern = r"\1\1"
     
-    for it, tweet in enumerate(tweets):
-        tweet[0] = tweet[0].lower()
+    for it, tweet in enumerate(data):
+        tweet = tweet.lower()
             
         # Replace links with URL
-        tweet[0] = re.sub(urlPattern,' URL',tweet[0])
+        tweet = re.sub(urlPattern,' URL',tweet)
         # Replace listed basic emojis
         for emoji in emojis.keys():
-            tweet[0] = tweet[0].replace(emoji, "EMOJI" + emojis[emoji])        
+            tweet = tweet.replace(emoji, "EMOJI" + emojis[emoji])        
         # Replace @USERNAME with USER.
-        tweet[0] = re.sub(userPattern,' USER', tweet[0])        
+        tweet = re.sub(userPattern,' USER', tweet)        
         # Replace ching chang chong
-        tweet[0] = re.sub(alphaPattern, " ", tweet[0])
+        tweet = re.sub(alphaPattern, " ", tweet)
         # Shorten 3 or more letters to just 2
-        tweet[0] = re.sub(sequencePattern, seqReplacePattern, tweet[0])
+        tweet = re.sub(sequencePattern, seqReplacePattern, tweet)
 
         tweetwords = ''
-        for word in tweet[0].split():
+        for word in tweet.split():
             # Checking if the word is a stopword.
             #if word not in stopwordlist:
             if len(word)>1:
                 # Lemmatizing the word.
                 word = wordLemm.lemmatize(word)
                 tweetwords += (word+' ')
-        tweet[0] = tweetwords
+
+        processed_data.append(tweetwords)
+        
         if it % step == 0:
             percent = (it*100)/1600000
             print(f"{percent}% completed...")
-    return tweets
+    return processed_data
