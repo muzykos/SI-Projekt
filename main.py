@@ -164,5 +164,11 @@ while ask_user:
     accuracy = None
     accuracy = accuracy_score(test_label, predictions) * 100
     print(f"Classifier accuracy: {accuracy}%")
+    print("Saving to file.",end=" ")
+    f = open("results.txt", "a")
+    print(".",end="")
+    f.write(f"Accuracy: {accuracy}, seed: {seed}, test group: {test_part}%, alpha: {nb_alpha}, force alpha: {nb_force_alpha}, fit prior: {nb_fit_prior}\n")
+    print(".")
+    print("Saving completed.")
     if benchmark: print(f"BENCHMARK - splitting, vectorizing, training and testing: {time.time()-t2}")
     repeat = True; prev_split = test_part; prev_seed = seed; adv_settings = False; nb_alpha = 1.0; nb_fit_prior = True; nb_force_alpha = True
