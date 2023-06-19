@@ -28,10 +28,12 @@ stopwordlist = ['a', 'about', 'above', 'after', 'again', 'ain', 'all', 'am', 'an
              'why', 'will', 'with', 'won', 'y', 'you', "youd","youll", "youre",
              "youve", 'your', 'yours', 'yourself', 'yourselves']
 
-def preprocess(tweet):
-    # Create Lemmatizer and Stemmer.
+def preprocess(data):
+    # Initializing.
     wordLemm = WordNetLemmatizer()
-    
+    step = 16000
+    processed_data = []
+
     # Defining regex patterns.
     urlPattern        = r"((http://)[^ ]*|(https://)[^ ]*|( www\.)[^ ]*)"
     userPattern       = '@[^\s]+'
@@ -39,27 +41,33 @@ def preprocess(tweet):
     sequencePattern   = r"(.)\1\1+"
     seqReplacePattern = r"\1\1"
     
-    tweet = tweet.lower()
-        
-    # Replace links with URL
-    tweet = re.sub(urlPattern,' URL',tweet)
-    # Replace listed basic emojis
-    for emoji in emojis.keys():
-        tweet = tweet.replace(emoji, "EMOJI" + emojis[emoji])        
-    # Replace @USERNAME with USER.
-    tweet = re.sub(userPattern,' USER', tweet)        
-    # Replace ching chang chong
-    tweet = re.sub(alphaPattern, " ", tweet)
-    # Shorten 3 or more letters to just 2
-    tweet = re.sub(sequencePattern, seqReplacePattern, tweet)
-
-    tweetwords = ''
-    for word in tweet.split():
-        # Checking if the word is a stopword.
-        #if word not in stopwordlist:
-        if len(word)>1:
-            # Lemmatizing the word.
-            word = wordLemm.lemmatize(word)
-            tweetwords += (word+' ')
+    for it, tweet in enumerate(data):
+        tweet = tweet.lower()
             
-    return tweetwords
+        # Replace links with URL
+        tweet = re.sub(urlPattern,' URL',tweet)
+        # Replace listed basic emojis
+        for emoji in emojis.keys():
+            tweet = tweet.replace(emoji, "EMOJI" + emojis[emoji])        
+        # Replace @USERNAME with USER.
+        tweet = re.sub(userPattern,' USER', tweet)        
+        # Replace ching chang chong
+        tweet = re.sub(alphaPattern, " ", tweet)
+        # Shorten 3 or more letters to just 2
+        tweet = re.sub(sequencePattern, seqReplacePattern, tweet)
+
+        tweetwords = ''
+        for word in tweet.split():
+            # Checking if the word is a stopword.
+            #if word not in stopwordlist:
+            if len(word)>1:
+                # Lemmatizing the word.
+                word = wordLemm.lemmatize(word)
+                tweetwords += (word+' ')
+
+        processed_data.append(tweetwords)
+        
+        if it % step == 0:
+            percent = (it*100)/1600000
+            print(f"{percent}% completed...")
+    return processed_data
