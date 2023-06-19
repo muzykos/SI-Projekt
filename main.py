@@ -22,10 +22,20 @@ def is_float(string):
         return False
 
 # Program settings
-benchmark = True
+benchmark = False
 print_predictions = False
-ask_user = True
+ask_user = True # don't use together with automatic_tests
 adv_settings = False
+
+automatic_tests = True # don't use together with ask_user
+# Test format: test_part, seed, alpha, force_alpha, fit_prior
+tests = [[5, 1, 0.25, True, True], [5, 1, 0.5, True, True], [5, 1, 1.0, True, True], [5, 1, 1.5, True, True], [5, 1, 2.0, True, True], [5, 1, 2.5, True, True],
+         [10, 1, 0.25, True, True], [10, 1, 0.5, True, True], [10, 1, 1.0, True, True], [10, 1, 1.5, True, True], [10, 1, 2.0, True, True], [10, 1, 2.5, True, True]
+         [15, 1, 0.25, True, True], [15, 1, 0.5, True, True], [15, 1, 1.0, True, True], [15, 1, 1.5, True, True], [15, 1, 2.0, True, True], [15, 1, 2.5, True, True]
+         [20, 1, 0.25, True, True], [20, 1, 0.5, True, True], [20, 1, 1.0, True, True], [20, 1, 1.5, True, True], [20, 1, 2.0, True, True], [20, 1, 2.5, True, True]
+         [25, 1, 0.25, True, True], [25, 1, 0.5, True, True], [25, 1, 1.0, True, True], [25, 1, 1.5, True, True], [25, 1, 2.0, True, True], [25, 1, 2.5, True, True]]
+t_amount = len(tests)
+t_counter = 0
 
 # Parameters for train/test splitting  
 test_part = 15 # % of samples used for tests
@@ -72,8 +82,8 @@ print("Preprocessing completed.")
 
 if benchmark: print(f"BENCHMARK - read+process {time.time()-t}")
 
-while ask_user:
-    if repeat:
+while ask_user ^ automatic_tests:
+    if repeat and ask_user:
         answ = input("Do you want to leave? (enter 'yes' to stop the program): ")
         if answ.lower().strip() == "yes": break
     if ask_user:
@@ -114,6 +124,11 @@ while ask_user:
             if answ.lower().strip() == "true": nb_fit_prior = True
             elif answ.lower().strip() == "": nb_fit_prior = True
             else: nb_fit_prior = False
+            
+    elif automatic_tests:
+        test = tests[t_counter]
+        test_part = test[0]; seed = test[1]; nb_alpha = test[2]; nb_force_alpha = test[3]; nb_fit_prior = test[4]
+        t_counter+=1
 
     if benchmark: t2 = time.time()
     if prev_split != test_part:
@@ -173,3 +188,4 @@ while ask_user:
     print("Saving completed.")
     if benchmark: print(f"BENCHMARK - splitting, vectorizing, training and testing: {time.time()-t2}")
     repeat = True; prev_split = test_part; prev_seed = seed; adv_settings = False; nb_alpha = 1.0; nb_fit_prior = True; nb_force_alpha = True
+    if automatic_tests and t_counter == t_amount-1: break
