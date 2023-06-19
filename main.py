@@ -27,7 +27,7 @@ print_predictions = False
 ask_user = True # don't use together with automatic_tests
 adv_settings = False
 
-automatic_tests = True # don't use together with ask_user
+automatic_tests = False # don't use together with ask_user
 # Test format: test_part, seed, alpha, force_alpha, fit_prior
 tests = [[5, 1, 0.25, True, True], [5, 1, 0.5, True, True], [5, 1, 1.0, True, True], [5, 1, 1.5, True, True], [5, 1, 2.0, True, True], [5, 1, 2.5, True, True],
          [10, 1, 0.25, True, True], [10, 1, 0.5, True, True], [10, 1, 1.0, True, True], [10, 1, 1.5, True, True], [10, 1, 2.0, True, True], [10, 1, 2.5, True, True]
@@ -124,7 +124,7 @@ while ask_user ^ automatic_tests:
             if answ.lower().strip() == "true": nb_fit_prior = True
             elif answ.lower().strip() == "": nb_fit_prior = True
             else: nb_fit_prior = False
-            
+
     elif automatic_tests:
         test = tests[t_counter]
         test_part = test[0]; seed = test[1]; nb_alpha = test[2]; nb_force_alpha = test[3]; nb_fit_prior = test[4]
