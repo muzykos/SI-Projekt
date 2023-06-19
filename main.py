@@ -78,7 +78,7 @@ while ask_user:
         test_part *= 0.01 # percent to float
         test_count = int(sample_count * test_part)
 
-        seed = int(input("Seed for reploducible output (same seed and test %): "))
+        seed = int(input("Seed for reproducible output (same seed and test %): "))
         answ = input("Print predictions? (yes/anything; will take more time): ")
         if answ.lower().strip() == "yes": print_predictions = True
         else: print_predictions = False
