@@ -165,4 +165,4 @@ while ask_user:
     accuracy = accuracy_score(test_label, predictions) * 100
     print(f"Classifier accuracy: {accuracy}%")
     if benchmark: print(f"BENCHMARK - splitting, vectorizing, training and testing: {time.time()-t2}")
-    repeat = True; prev_split = test_part; prev_seed = seed;
+    repeat = True; prev_split = test_part; prev_seed = seed; adv_settings = False; nb_alpha = 1.0; nb_fit_prior = True; nb_force_alpha = True
