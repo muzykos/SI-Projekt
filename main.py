@@ -4,7 +4,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split #do opisania
 import csv
 from wordProcesser import preprocess
-import random #do opisania
 import time #do opisania
 
 #todo: vectorizing przed split
@@ -16,20 +15,21 @@ def parsePolarity(polarity):
         return 'positive'
     return -1
 
+def is_float(string):
+    if string.replace(".", "").isnumeric():
+        return True
+    else:
+        return False
+
 # Program settings
 benchmark = True
 print_predictions = False
 ask_user = True
 adv_settings = False
-repeat = False # don't touch
 
 # Parameters for train/test splitting  
 test_part = 15 # % of samples used for tests
 seed = 1 # None default, makes train_test_split give same output for certain seed and test_part
-
-
-# Parameters to set for TF-IDF vectorizer
-#none bruh
 
 # Parameters to set for Naive Bayes Multinomial classifier
 nb_alpha = 1.0 #1.0 default
@@ -37,6 +37,9 @@ nb_force_alpha = True #True default
 nb_fit_prior = True #True default
 
 # Initialization
+prev_split = -1
+prev_seed = -1
+repeat = False
 sample_count = 1600000
 step = 40000
 
@@ -74,11 +77,17 @@ while ask_user:
         answ = input("Do you want to leave? (enter 'yes' to stop the program): ")
         if answ.lower().strip() == "yes": break
     if ask_user:
-        test_part = int(input("% of samples to put in test group: "))
+        answ = input("% of samples to put in test group: ")
+        while not is_float(answ):
+            answ = input("% of samples to put in test group(float): ")
+        test_part = float(answ)
         test_part *= 0.01 # percent to float
         test_count = int(sample_count * test_part)
 
-        seed = int(input("Seed for reproducible output (same seed and test %): "))
+        answ = input("Seed for reproducible output (same seed and test %; int only): ")
+        while not answ.isnumeric():
+            answ = input("Seed for reproducible output (same seed and test %; int only): ")
+        seed = int(answ) 
         answ = input("Print predictions? (yes/anything; will take more time): ")
         if answ.lower().strip() == "yes": print_predictions = True
         else: print_predictions = False
@@ -91,7 +100,12 @@ while ask_user:
         if adv_settings:
             print("You are changing parameters of Naive Bayes Multinominal classifier.\n")
             print("Not giving an answer leaves default value.\n")
-            nb_alpha = int(input("Alpha (default 1.0): "))
+            answ = input("Alpha (default 1.0): ")
+            if answ.lower().strip() == "": nb_alpha = 1.0
+            else:
+                while not is_float(answ):
+                    answ = input("Alpha (default 1.0; float): ")
+                nb_alpha=float(answ)
             answ = input("Force alpha (default: True; answer True or False): ")
             if answ.lower().strip() == "true": nb_force_alpha = True
             elif answ.lower().strip() == "": nb_force_alpha = True
@@ -102,24 +116,28 @@ while ask_user:
             else: nb_fit_prior = False
 
     if benchmark: t2 = time.time()
-    print("Splitting into train and test groups...")
-    train_data = []; test_data = []; train_label = []; test_label = []
-    train_data, test_data, train_label, test_label = train_test_split(read_data, read_label,
-                                                                    test_size=test_part,
-                                                                    random_state=seed)
-    act_tests = len(test_data)
-    act_trains = len(train_data)
-    print("Splitting completed.")
+    if prev_split != test_part:
+        print("Splitting into train and test groups...")
+        train_data = []; test_data = []; train_label = []; test_label = []
+        train_data, test_data, train_label, test_label = train_test_split(read_data, read_label,
+                                                                        test_size=test_part,
+                                                                        random_state=seed)
+        act_tests = len(test_data)
+        act_trains = len(train_data)
+        print("Splitting completed.")
+    else: print("Skipping splitting same data again...")
 
     print(f"Total number of samples: {sample_count}.\nNumber of tests: {act_tests}.\nNumber of train samples: {act_trains}.")
 
-    print("Vectorizing data...")
-    # Vectorizing text data, sadly % completed is impossible without modifying library
-    vectorizer = TfidfVectorizer(lowercase=False) # already lowercased
-    train_features = None; test_features = None
-    train_features = vectorizer.fit_transform(train_data)
-    test_features = vectorizer.transform(test_data)
-    print("Vectorizing completed.")
+    if prev_split != test_part:
+        print("Vectorizing data...")
+        # Vectorizing text data, sadly % completed is impossible without modifying library
+        vectorizer = TfidfVectorizer(lowercase=False) # already lowercased
+        train_features = None; test_features = None
+        train_features = vectorizer.fit_transform(train_data)
+        test_features = vectorizer.transform(test_data)
+        print("Vectorizing completed.")
+    else: print("Skipping vectorizing same data again...")
 
     # Training the classifier, sadly % completed is impossible without modifying library
     classifier = None
@@ -144,7 +162,7 @@ while ask_user:
 
     # Evaluating the accuracy of the classifier
     accuracy = None
-    accuracy = accuracy_score(test_label, predictions)
-    print(f"Classifier accuracy: {accuracy}")
+    accuracy = accuracy_score(test_label, predictions) * 100
+    print(f"Classifier accuracy: {accuracy}%")
     if benchmark: print(f"BENCHMARK - splitting, vectorizing, training and testing: {time.time()-t2}")
-    repeat = True
+    repeat = True; prev_split = test_part; prev_seed = seed;
