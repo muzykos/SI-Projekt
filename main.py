@@ -3,6 +3,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score
 import csv
 from wordProcesser import preprocess
+import time
 
 def parsePolarity(polarity):
     if not polarity:
@@ -37,6 +38,8 @@ test_labels = []
 p = int(sample_count / test_count)
 print(p)
 
+t=time.time()
+
 print("Reading twitter_emotions.csv...")
 with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
     reader = csv.reader(f)
@@ -67,6 +70,8 @@ with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
             print(f"{percent}% completed...")
 
 print("Reading completed.") 
+
+print(f"BENCHMARK - read+preprocess {time.time()-t}")
 
 act_tests = len(test_data)
 act_trains = len(train_data)
@@ -109,3 +114,4 @@ print("Predicting completed.")
 # Evaluating the accuracy of the classifier
 accuracy = accuracy_score(test_labels, predictions)
 print(f"Classifier accuracy: {accuracy}")
+print(f"BENCHMARK - everything {time.time()-t}")
