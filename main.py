@@ -11,20 +11,31 @@ def parsePolarity(polarity):
         return 'positive'
     return -1
 
-# Write here what % of samples should be in test_data   
-test_part = 0.2
+# What % of samples should be in test_data   
+test_part = 5 # %
+
+# Parameters to set for TF-IDF vectorizer
 
 
+# Parameters to set for Naive Bayes Multinomial classifier
+nb_alpha = 1.0 #1.0 default
+nb_force_alpha = True #True default
+nb_fit_prior = True #True default
+
+test_part *= 0.01
 sample_count = 1600000
 test_count = int(sample_count * test_part)
 step = 10000
 
+
+print(test_part)
 train_data = []
 train_labels = []
 test_data = []
 test_labels = []
 
 p = int(sample_count / test_count)
+print(p)
 
 print("Reading twitter_emotions.csv...")
 with open('twitter_emotions.csv', newline='', encoding="ISO-8859-1") as f:
@@ -64,13 +75,13 @@ print(f"Total number of samples: {sample_count}.\nWanted number of tests: {test_
 
 print("Vectorizing data...")
 # Vectorizing text data, sadly % completed is impossible without modifying library
-vectorizer = TfidfVectorizer()
+vectorizer = TfidfVectorizer(lowercase=False) # already lowercased
 train_features = vectorizer.fit_transform(train_data)
 test_features = vectorizer.transform(test_data)
 print("Vectorizing completed.")
 
 # Training the classifier, sadly % completed is impossible without modifying library
-classifier = MultinomialNB()
+classifier = MultinomialNB(alpha=nb_alpha, force_alpha=nb_force_alpha, fit_prior=nb_fit_prior)
 
 print("Training classifier...")
 # step_train = step * (1-test_part)
@@ -93,7 +104,7 @@ print("Predicting completed.")
 
 # Print the predictions (uncommenting would make it take mooore time)
 # for text, prediction in zip(test_data, predictions):
-#     print(f"Text: {text} | Sentiment: {prediction}")
+    # print(f"Text: {text} | Sentiment: {prediction}")
 
 # Evaluating the accuracy of the classifier
 accuracy = accuracy_score(test_labels, predictions)
